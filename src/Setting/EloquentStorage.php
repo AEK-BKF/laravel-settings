@@ -10,13 +10,12 @@ class EloquentStorage extends Eloquent implements SettingStorageInterface
     protected $fillable = ['key', 'value', 'locale', 'user_id', 'is_global'];
 
     protected $table = 'settings';
-    protected $userID = Auth::guard('admin')->user()->id;
-
+    
     public $timestamps = false;
 
     public static function retrieve($key, $lang = null)
     {
-        $setting = static::where('key', $key)->where('user_id', $this->userID);
+        $setting = static::where('key', $key)->where('user_id', Auth::guard('admin')->user()->id);
 
         if (!is_null($lang)) {
             $setting = $setting->where('locale', $lang);
@@ -29,7 +28,7 @@ class EloquentStorage extends Eloquent implements SettingStorageInterface
 
     public static function store($key, $value, $lang)
     {
-        $setting = ['key' => $key, 'value' => $value, 'user_id' => $this->userID];
+        $setting = ['key' => $key, 'value' => $value, 'user_id' => Auth::guard('admin')->user()->id];
 
         if (!is_null($lang)) {
             $setting['locale'] = $lang;
@@ -45,12 +44,12 @@ class EloquentStorage extends Eloquent implements SettingStorageInterface
             $setting = new static();
         }
 
-        $setting->where('key', $key)->where('user_id', $this->userID)->update(['value' => $value]);
+        $setting->where('key', $key)->where('user_id', Auth::guard('admin')->user()->id)->update(['value' => $value]);
     }
 
     public static function forget($key, $lang)
     {
-        $setting = static::where('key', $key)->where('user_id', $this->userID);
+        $setting = static::where('key', $key)->where('user_id', Auth::guard('admin')->user()->id);
 
         if (!is_null($lang)) {
             $setting = $setting->where('locale', $lang);
