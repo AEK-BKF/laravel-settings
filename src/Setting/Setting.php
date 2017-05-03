@@ -34,6 +34,7 @@ class Setting
             }
         }
         $this->resetLang();
+        if(is_null($setting)) $setting = $default_value; // Default value was returning null
         return $setting;
     }
 
