@@ -17,7 +17,7 @@ class CreateSettingsTable extends Migration
             $table->string('value')->nullable();
             $table->string('locale')->nullable();
             $table->integer('admin_id')->unsigned()->nullable();
-            $table->boolean('is_Global')->default('0');
+            $table->boolean('is_global')->default('0');
         });
     }
 
