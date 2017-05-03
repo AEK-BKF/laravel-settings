@@ -3,45 +3,41 @@
 namespace Unisharp\Setting;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Auth;
 
 class EloquentStorage extends Eloquent implements SettingStorageInterface
 {
     protected $fillable = ['key', 'value', 'locale', 'user_id', 'is_global'];
 
     protected $table = 'settings';
+    protected $userID = Auth::guard('admin')->user()->id;
 
     public $timestamps = false;
 
-    public static function retrieve($key, $lang = null, $user_id = null)
+    public static function retrieve($key, $lang = null)
     {
-        $setting = static::where('key', $key);
+        $setting = static::where('key', $key)->where('user_id', $this->userID);
 
         if (!is_null($lang)) {
             $setting = $setting->where('locale', $lang);
         } else {
             $setting = $setting->whereNull('locale');
-        }
-        if (!is_null($user_id)) {
-            $setting = $setting->where('user_id', $user_id);
-        }
+        }        
 
         return $setting->first();
     }
 
-    public static function store($key, $value, $lang, $user_id)
+    public static function store($key, $value, $lang)
     {
-        $setting = ['key' => $key, 'value' => $value];
+        $setting = ['key' => $key, 'value' => $value, 'user_id' => $this->userID];
 
         if (!is_null($lang)) {
             $setting['locale'] = $lang;
-        }
-        if (!is_null($user_id)) {
-            $setting['user_id'] = $user_id;
-        }
+        }     
         static::create($setting);
     }
 
-    public static function modify($key, $value, $lang, $user_id)
+    public static function modify($key, $value, $lang)
     {
         if (!is_null($lang)) {
             $setting = static::where('locale', $lang);
@@ -49,12 +45,12 @@ class EloquentStorage extends Eloquent implements SettingStorageInterface
             $setting = new static();
         }
 
-        $setting->where('key', $key)->where('user_id', $user_id)->update(['value' => $value]);
+        $setting->where('key', $key)->where('user_id', $this->userID)->update(['value' => $value]);
     }
 
-    public static function forget($key, $lang, $user_id)
+    public static function forget($key, $lang)
     {
-        $setting = static::where('key', $key)->where('user_id', $user_id);
+        $setting = static::where('key', $key)->where('user_id', $this->userID);
 
         if (!is_null($lang)) {
             $setting = $setting->where('locale', $lang);
